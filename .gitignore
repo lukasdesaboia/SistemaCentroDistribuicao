@@ -1,0 +1,20 @@
+# Visual Studio
+.vs/
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo
+
+# Build results
+Debug/
+Release/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Local settings / secrets
+appsettings.Development.json
+.env

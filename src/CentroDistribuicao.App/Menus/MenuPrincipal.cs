@@ -40,9 +40,8 @@ case "1":
                    break;
 
                 case "3":
-                    Console.WriteLine("Listagem de fornecedores.");
+                    await ListarFornecedoresAsync();
                     break;
-
                 case "4":
                     Console.WriteLine("Cadastro de fornecedor.");
                     break;
@@ -158,6 +157,39 @@ private static async Task CadastrarProdutoAsync()
     {
         Console.WriteLine();
         Console.WriteLine("Não foi possível cadastrar o produto.");
+        Console.WriteLine($"Erro: {erro.Message}");
+    }
+private static async Task ListarFornecedoresAsync()
+{
+    try
+    {
+        var repositorio = new FornecedorRepository();
+
+        var fornecedores = await repositorio.ListarAsync();
+
+        Console.WriteLine("=== FORNECEDORES CADASTRADOS ===");
+        Console.WriteLine();
+
+        if (fornecedores.Count == 0)
+        {
+            Console.WriteLine("Nenhum fornecedor cadastrado.");
+            return;
+        }
+
+        foreach (var fornecedor in fornecedores)
+        {
+            Console.WriteLine(
+                $"ID: {fornecedor.IdFornecedor} | " +
+                $"Fornecedor: {fornecedor.NomeFantasia ?? fornecedor.RazaoSocial} | " +
+                $"CNPJ: {fornecedor.CNPJ} | " +
+                $"Telefone: {fornecedor.Telefone ?? "-"} | " +
+                $"Ativo: {(fornecedor.Ativo ? "Sim" : "Não")}"
+            );
+        }
+    }
+    catch (Exception erro)
+    {
+        Console.WriteLine("Não foi possível consultar os fornecedores.");
         Console.WriteLine($"Erro: {erro.Message}");
     }
 }

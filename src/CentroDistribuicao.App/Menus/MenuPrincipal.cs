@@ -42,9 +42,9 @@ case "1":
                 case "3":
                     await ListarFornecedoresAsync();
                     break;
-                case "4":
-                    Console.WriteLine("Cadastro de fornecedor.");
-                    break;
+               case "4":
+                 await CadastrarFornecedorAsync();
+                 break;
 
                 case "5":
                     Console.WriteLine("Registro de entrada.");
@@ -190,6 +190,58 @@ private static async Task ListarFornecedoresAsync()
     catch (Exception erro)
     {
         Console.WriteLine("Não foi possível consultar os fornecedores.");
+        Console.WriteLine($"Erro: {erro.Message}");
+    }
+private static async Task CadastrarFornecedorAsync()
+{
+    Console.WriteLine("=== CADASTRAR FORNECEDOR ===");
+    Console.WriteLine();
+
+    Console.Write("Razão social: ");
+    string razaoSocial = Console.ReadLine()?.Trim() ?? "";
+
+    Console.Write("Nome fantasia: ");
+    string nomeFantasia = Console.ReadLine()?.Trim() ?? "";
+
+    Console.Write("CNPJ: ");
+    string cnpj = Console.ReadLine()?.Trim() ?? "";
+
+    Console.Write("Telefone: ");
+    string telefone = Console.ReadLine()?.Trim() ?? "";
+
+    Console.Write("E-mail: ");
+    string email = Console.ReadLine()?.Trim() ?? "";
+
+    if (string.IsNullOrWhiteSpace(razaoSocial) ||
+        string.IsNullOrWhiteSpace(cnpj))
+    {
+        Console.WriteLine();
+        Console.WriteLine("Razão social e CNPJ são obrigatórios.");
+        return;
+    }
+
+    var fornecedor = new CentroDistribuicao.App.Models.Fornecedor
+    {
+        RazaoSocial = razaoSocial,
+        NomeFantasia = nomeFantasia,
+        CNPJ = cnpj,
+        Telefone = telefone,
+        Email = email
+    };
+
+    try
+    {
+        var repositorio = new FornecedorRepository();
+
+        await repositorio.CadastrarAsync(fornecedor);
+
+        Console.WriteLine();
+        Console.WriteLine("Fornecedor cadastrado com sucesso.");
+    }
+    catch (Exception erro)
+    {
+        Console.WriteLine();
+        Console.WriteLine("Não foi possível cadastrar o fornecedor.");
         Console.WriteLine($"Erro: {erro.Message}");
     }
 }

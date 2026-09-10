@@ -36,8 +36,8 @@ case "1":
     break;
 
                 case "2":
-                    Console.WriteLine("Cadastro de produto.");
-                    break;
+                   await CadastrarProdutoAsync();
+                   break;
 
                 case "3":
                     Console.WriteLine("Listagem de fornecedores.");
@@ -114,5 +114,50 @@ private static async Task ListarProdutosAsync()
     private static async Task ListarProdutosAsync()
     {
         // código da consulta
+    }
+private static async Task CadastrarProdutoAsync()
+{
+    Console.WriteLine("=== CADASTRAR PRODUTO ===");
+    Console.WriteLine();
+
+    Console.Write("Código do produto: ");
+    string codigo = Console.ReadLine()?.Trim() ?? "";
+
+    Console.Write("Descrição: ");
+    string descricao = Console.ReadLine()?.Trim() ?? "";
+
+    Console.Write("Unidade (UN, CX, KG...): ");
+    string unidade = Console.ReadLine()?.Trim().ToUpper() ?? "";
+
+    if (string.IsNullOrWhiteSpace(codigo) ||
+        string.IsNullOrWhiteSpace(descricao) ||
+        string.IsNullOrWhiteSpace(unidade))
+    {
+        Console.WriteLine();
+        Console.WriteLine("Código, descrição e unidade são obrigatórios.");
+        return;
+    }
+
+    var produto = new CentroDistribuicao.App.Models.Produto
+    {
+        Codigo = codigo,
+        Descricao = descricao,
+        Unidade = unidade
+    };
+
+    try
+    {
+        var repositorio = new ProdutoRepository();
+
+        await repositorio.CadastrarAsync(produto);
+
+        Console.WriteLine();
+        Console.WriteLine("Produto cadastrado com sucesso.");
+    }
+    catch (Exception erro)
+    {
+        Console.WriteLine();
+        Console.WriteLine("Não foi possível cadastrar o produto.");
+        Console.WriteLine($"Erro: {erro.Message}");
     }
 }

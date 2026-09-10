@@ -1,4 +1,4 @@
-namespace CentroDistribuicao.App.Menus;
+using CentroDistribuicao.App.Repositories;namespace CentroDistribuicao.App.Menus;
 
 public static class MenuPrincipal
 {
@@ -31,9 +31,9 @@ public static class MenuPrincipal
 
             switch (opcao)
             {
-                case "1":
-                    Console.WriteLine("Listagem de produtos.");
-                    break;
+case "1":
+    await ListarProdutosAsync();
+    break;
 
                 case "2":
                     Console.WriteLine("Cadastro de produto.");
@@ -75,5 +75,44 @@ public static class MenuPrincipal
 
             await Task.CompletedTask;
         }
+    }
+private static async Task ListarProdutosAsync()
+{
+    try
+    {
+        var repositorio = new ProdutoRepository();
+
+        var produtos = await repositorio.ListarAsync();
+
+        Console.WriteLine("=== PRODUTOS CADASTRADOS ===");
+        Console.WriteLine();
+
+        if (produtos.Count == 0)
+        {
+            Console.WriteLine("Nenhum produto cadastrado.");
+            return;
+        }
+
+        foreach (var produto in produtos)
+        {
+            Console.WriteLine(
+                $"ID: {produto.IdProduto} | " +
+                $"Código: {produto.Codigo} | " +
+                $"Produto: {produto.Descricao} | " +
+                $"Unidade: {produto.Unidade} | " +
+                $"Ativo: {(produto.Ativo ? "Sim" : "Não")}"
+            );
+        }
+    }
+    catch (Exception erro)
+    {
+        Console.WriteLine("Não foi possível consultar os produtos.");
+        Console.WriteLine($"Erro: {erro.Message}");
+    }
+}    // switch e restante do menu...
+
+    private static async Task ListarProdutosAsync()
+    {
+        // código da consulta
     }
 }

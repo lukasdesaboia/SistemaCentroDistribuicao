@@ -1,51 +1,45 @@
-# Sistema de Centro de Distribuição
+# Sistema de Centro de Distribuicao
 
-Projeto inicial em SQL Server para controle de entrada e saída de mercadorias em um centro de distribuição.
+Projeto em C# e SQL Server para controle de entrada, saida e estoque de mercadorias em um centro de distribuicao.
 
-## Objetivo
+## Tecnologias
 
-Controlar:
+- C# / .NET 10
+- SQL Server Express
+- Microsoft.Data.SqlClient
+- DataGrip
+- VS Code
 
-- Fornecedores
-- Produtos
-- Entradas de mercadorias
-- Itens das entradas
-- Saídas de mercadorias
-- Itens das saídas
-- Estoque atual
+## Funcionalidades atuais
 
-## Estrutura
+- Cadastro de fornecedores e produtos
+- Registro de entradas e saidas
+- Calculo de estoque
+- View de estoque atual
+- Validacao para impedir saida acima do estoque
+- Aplicacao C# conectando ao SQL Server e exibindo o estoque
 
-```text
-SistemaCentroDistribuicao/
-├── database/
-│   ├── 00_CriarBanco.sql
-│   ├── 01_CriarTabelas.sql
-│   ├── 02_DadosTeste.sql
-│   ├── 03_ConsultasTeste.sql
-│   └── 04_TesteValidacao.sql
-├── src/
-├── docs/
-├── .gitignore
-└── README.md
+## Ordem dos scripts
+
+1. `database/00_CriarBanco.sql`
+2. `database/01_CriarTabelas.sql`
+3. `database/02_DadosTeste.sql`
+4. `database/03_ViewEstoque.sql`
+5. `database/04_ProcedureRegistrarSaida.sql`
+6. `database/05_Consultas.sql`
+
+`06_TesteValidacao.sql` e opcional e deve gerar erro de estoque insuficiente.
+
+## Executar o C#
+
+```powershell
+cd src/CentroDistribuicao.App
+dotnet restore
+dotnet run
 ```
 
-## Ordem de execução
+A conexao padrao usa `localhost\SQLEXPRESS`, banco `CentroDistribuicao` e autenticacao do Windows.
 
-Execute os scripts no SQL Server Management Studio nesta ordem:
+## Dados de demonstracao
 
-1. `00_CriarBanco.sql`
-2. `01_CriarTabelas.sql`
-3. `02_DadosTeste.sql`
-4. `03_ConsultasTeste.sql`
-
-O arquivo `04_TesteValidacao.sql` é opcional e deve gerar erro propositalmente, pois testa se o banco impede uma quantidade negativa.
-
-## Próximas etapas
-
-- Registrar saídas
-- Validar estoque disponível
-- Criar consultas e relatórios
-- Integrar o banco ao C#
-- Criar interface do sistema
-- Adicionar tratamento de erros
+Os dados dos scripts sao ficticios. Nomes comerciais podem ser reais apenas para deixar os exemplos naturais; CNPJ, telefone, documentos e movimentacoes nao representam dados reais das empresas.

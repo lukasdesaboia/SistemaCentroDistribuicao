@@ -1,20 +1,11 @@
-# Visual Studio
-.vs/
 bin/
 obj/
-
-# User-specific files
+.vs/
+.vscode/
 *.user
 *.suo
-
-# Build results
-Debug/
-Release/
-
-# OS
+.idea/
 Thumbs.db
 .DS_Store
-
-# Local settings / secrets
-appsettings.Development.json
 .env
+appsettings.Development.json

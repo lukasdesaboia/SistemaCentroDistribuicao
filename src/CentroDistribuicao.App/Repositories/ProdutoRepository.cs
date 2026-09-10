@@ -42,4 +42,44 @@ public class ProdutoRepository
 
         return produtos;
     }
+public async Task CadastrarAsync(Produto produto)
+{
+    const string sql = """
+        INSERT INTO dbo.Produtos
+        (
+            Codigo,
+            Descricao,
+            Unidade
+        )
+        VALUES
+        (
+            @Codigo,
+            @Descricao,
+            @Unidade
+        );
+        """;
+
+    await using var conexao = ConexaoBanco.Criar();
+    await conexao.OpenAsync();
+
+    await using var comando = conexao.CreateCommand();
+
+    comando.CommandText = sql;
+
+    comando.Parameters.AddWithValue("@Codigo", produto.Codigo);
+    comando.Parameters.AddWithValue("@Descricao", produto.Descricao);
+    comando.Parameters.AddWithValue("@Unidade", produto.Unidade);
+
+    await comando.ExecuteNonQueryAsync();
+public class ProdutoRepository
+{
+    public async Task<List<Produto>> ListarAsync()
+    {
+        // código que já existe
+    }
+
+    public async Task CadastrarAsync(Produto produto)
+    {
+        // código novo
+    }
 }

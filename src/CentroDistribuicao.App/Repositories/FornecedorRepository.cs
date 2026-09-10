@@ -46,4 +46,57 @@ public class FornecedorRepository
 
         return fornecedores;
     }
+public async Task CadastrarAsync(Fornecedor fornecedor)
+{
+    const string sql = """
+        INSERT INTO dbo.Fornecedores
+        (
+            RazaoSocial,
+            NomeFantasia,
+            CNPJ,
+            Telefone,
+            Email
+        )
+        VALUES
+        (
+            @RazaoSocial,
+            @NomeFantasia,
+            @CNPJ,
+            @Telefone,
+            @Email
+        );
+        """;
+
+    await using var conexao = ConexaoBanco.Criar();
+    await conexao.OpenAsync();
+
+    await using var comando = conexao.CreateCommand();
+
+    comando.CommandText = sql;
+
+    comando.Parameters.AddWithValue("@RazaoSocial", fornecedor.RazaoSocial);
+    comando.Parameters.AddWithValue(
+        "@NomeFantasia",
+        string.IsNullOrWhiteSpace(fornecedor.NomeFantasia)
+            ? DBNull.Value
+            : fornecedor.NomeFantasia
+    );
+
+    comando.Parameters.AddWithValue("@CNPJ", fornecedor.CNPJ);
+
+    comando.Parameters.AddWithValue(
+        "@Telefone",
+        string.IsNullOrWhiteSpace(fornecedor.Telefone)
+            ? DBNull.Value
+            : fornecedor.Telefone
+    );
+
+    comando.Parameters.AddWithValue(
+        "@Email",
+        string.IsNullOrWhiteSpace(fornecedor.Email)
+            ? DBNull.Value
+            : fornecedor.Email
+    );
+
+    await comando.ExecuteNonQueryAsync();
 }

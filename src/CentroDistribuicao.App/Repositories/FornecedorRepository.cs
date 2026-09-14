@@ -36,67 +36,92 @@ public class FornecedorRepository
             {
                 IdFornecedor = leitor.GetInt32(0),
                 RazaoSocial = leitor.GetString(1),
-                NomeFantasia = leitor.IsDBNull(2) ? null : leitor.GetString(2),
+                NomeFantasia =
+                    leitor.IsDBNull(2)
+                        ? null
+                        : leitor.GetString(2),
+
                 CNPJ = leitor.GetString(3),
-                Telefone = leitor.IsDBNull(4) ? null : leitor.GetString(4),
-                Email = leitor.IsDBNull(5) ? null : leitor.GetString(5),
+
+                Telefone =
+                    leitor.IsDBNull(4)
+                        ? null
+                        : leitor.GetString(4),
+
+                Email =
+                    leitor.IsDBNull(5)
+                        ? null
+                        : leitor.GetString(5),
+
                 Ativo = leitor.GetBoolean(6)
             });
         }
 
         return fornecedores;
     }
-public async Task CadastrarAsync(Fornecedor fornecedor)
-{
-    const string sql = """
-        INSERT INTO dbo.Fornecedores
-        (
-            RazaoSocial,
-            NomeFantasia,
-            CNPJ,
-            Telefone,
-            Email
-        )
-        VALUES
-        (
-            @RazaoSocial,
-            @NomeFantasia,
-            @CNPJ,
-            @Telefone,
-            @Email
+
+    public async Task CadastrarAsync(
+        Fornecedor fornecedor)
+    {
+        const string sql = """
+            INSERT INTO dbo.Fornecedores
+            (
+                RazaoSocial,
+                NomeFantasia,
+                CNPJ,
+                Telefone,
+                Email
+            )
+            VALUES
+            (
+                @RazaoSocial,
+                @NomeFantasia,
+                @CNPJ,
+                @Telefone,
+                @Email
+            );
+            """;
+
+        await using var conexao = ConexaoBanco.Criar();
+        await conexao.OpenAsync();
+
+        await using var comando = conexao.CreateCommand();
+        comando.CommandText = sql;
+
+        comando.Parameters.AddWithValue(
+            "@RazaoSocial",
+            fornecedor.RazaoSocial
         );
-        """;
 
-    await using var conexao = ConexaoBanco.Criar();
-    await conexao.OpenAsync();
+        comando.Parameters.AddWithValue(
+            "@NomeFantasia",
+            string.IsNullOrWhiteSpace(
+                fornecedor.NomeFantasia)
+                ? DBNull.Value
+                : fornecedor.NomeFantasia
+        );
 
-    await using var comando = conexao.CreateCommand();
+        comando.Parameters.AddWithValue(
+            "@CNPJ",
+            fornecedor.CNPJ
+        );
 
-    comando.CommandText = sql;
+        comando.Parameters.AddWithValue(
+            "@Telefone",
+            string.IsNullOrWhiteSpace(
+                fornecedor.Telefone)
+                ? DBNull.Value
+                : fornecedor.Telefone
+        );
 
-    comando.Parameters.AddWithValue("@RazaoSocial", fornecedor.RazaoSocial);
-    comando.Parameters.AddWithValue(
-        "@NomeFantasia",
-        string.IsNullOrWhiteSpace(fornecedor.NomeFantasia)
-            ? DBNull.Value
-            : fornecedor.NomeFantasia
-    );
+        comando.Parameters.AddWithValue(
+            "@Email",
+            string.IsNullOrWhiteSpace(
+                fornecedor.Email)
+                ? DBNull.Value
+                : fornecedor.Email
+        );
 
-    comando.Parameters.AddWithValue("@CNPJ", fornecedor.CNPJ);
-
-    comando.Parameters.AddWithValue(
-        "@Telefone",
-        string.IsNullOrWhiteSpace(fornecedor.Telefone)
-            ? DBNull.Value
-            : fornecedor.Telefone
-    );
-
-    comando.Parameters.AddWithValue(
-        "@Email",
-        string.IsNullOrWhiteSpace(fornecedor.Email)
-            ? DBNull.Value
-            : fornecedor.Email
-    );
-
-    await comando.ExecuteNonQueryAsync();
+        await comando.ExecuteNonQueryAsync();
+    }
 }

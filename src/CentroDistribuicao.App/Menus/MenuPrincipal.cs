@@ -51,8 +51,8 @@ case "1":
                 break;
 
                 case "6":
-                    Console.WriteLine("Registro de saída.");
-                    break;
+                 await RegistrarSaidaAsync();
+                break;
 
                 case "7":
                     Console.WriteLine("Consulta de estoque.");
@@ -499,5 +499,153 @@ private static async Task RegistrarEntradaAsync()
         Console.WriteLine(
             $"Erro: {erro.Message}"
         );
+    }
+private static async Task RegistrarSaidaAsync()
+{
+    try
+    {
+        Console.WriteLine("=== REGISTRAR SAÍDA ===");
+        Console.WriteLine();
+
+        Console.Write("Destino da mercadoria: ");
+        string destino = Console.ReadLine()?.Trim() ?? "";
+
+        if (string.IsNullOrWhiteSpace(destino))
+        {
+            Console.WriteLine("O destino é obrigatório.");
+            return;
+        }
+
+        Console.Write("Número do documento: ");
+        string numeroDocumento = Console.ReadLine()?.Trim() ?? "";
+
+        Console.Write("Observação: ");
+        string observacao = Console.ReadLine()?.Trim() ?? "";
+
+        var produtoRepository = new ProdutoRepository();
+
+        var produtos = await produtoRepository.ListarAsync();
+
+        var produtosAtivos = produtos
+            .Where(p => p.Ativo)
+            .ToList();
+
+        if (produtosAtivos.Count == 0)
+        {
+            Console.WriteLine("Nenhum produto ativo cadastrado.");
+            return;
+        }
+
+        var itens =
+            new List<CentroDistribuicao.App.Models.SaidaItemCadastro>();
+
+        while (true)
+        {
+            Console.WriteLine();
+            Console.WriteLine("=== PRODUTOS ===");
+            Console.WriteLine();
+
+            foreach (var produto in produtosAtivos)
+            {
+                Console.WriteLine(
+                    $"{produto.IdProduto} - " +
+                    $"{produto.Codigo} - " +
+                    $"{produto.Descricao}"
+                );
+            }
+
+            Console.WriteLine();
+            Console.Write("ID do produto (0 para finalizar): ");
+
+            if (!int.TryParse(
+                    Console.ReadLine(),
+                    out int idProduto))
+            {
+                Console.WriteLine("ID inválido.");
+                continue;
+            }
+
+            if (idProduto == 0)
+            {
+                break;
+            }
+
+            var produtoSelecionado =
+                produtosAtivos.FirstOrDefault(
+                    p => p.IdProduto == idProduto
+                );
+
+            if (produtoSelecionado == null)
+            {
+                Console.WriteLine("Produto não encontrado.");
+                continue;
+            }
+
+            if (itens.Any(i => i.IdProduto == idProduto))
+            {
+                Console.WriteLine(
+                    "Esse produto já foi adicionado à saída."
+                );
+
+                continue;
+            }
+
+            Console.Write("Quantidade: ");
+
+            if (!decimal.TryParse(
+                    Console.ReadLine(),
+                    out decimal quantidade) ||
+                quantidade <= 0)
+            {
+                Console.WriteLine("Quantidade inválida.");
+                continue;
+            }
+
+            itens.Add(
+                new CentroDistribuicao.App.Models.SaidaItemCadastro
+                {
+                    IdProduto = idProduto,
+                    Quantidade = quantidade
+                }
+            );
+
+            Console.WriteLine();
+            Console.WriteLine(
+                $"{produtoSelecionado.Descricao} adicionado à saída."
+            );
+        }
+
+        if (itens.Count == 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine(
+                "Saída cancelada: nenhum produto informado."
+            );
+
+            return;
+        }
+
+        var saidaRepository = new SaidaRepository();
+
+        int idSaida =
+            await saidaRepository.RegistrarAsync(
+                destino,
+                numeroDocumento,
+                observacao,
+                itens
+            );
+
+        Console.WriteLine();
+        Console.WriteLine("Saída registrada com sucesso.");
+        Console.WriteLine($"Código da saída: {idSaida}");
+    }
+    catch (Exception erro)
+    {
+        Console.WriteLine();
+        Console.WriteLine(
+            "Não foi possível registrar a saída."
+        );
+
+        Console.WriteLine($"Erro: {erro.Message}");
     }
 }

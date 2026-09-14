@@ -1,45 +1,43 @@
-# Sistema de Centro de Distribuicao
+# Sistema de Centro de Distribuição
 
-Projeto em C# e SQL Server para controle de entrada, saida e estoque de mercadorias em um centro de distribuicao.
+Projeto que desenvolvi para praticar a integração entre C# e SQL Server.
 
-## Tecnologias
+A ideia foi montar um sistema simples de centro de distribuição, onde é possível cadastrar produtos e fornecedores, registrar entradas e saídas de mercadorias e consultar o estoque atual.
+
+O projeto foi feito pensando mais na lógica e no funcionamento do que em interface gráfica, por isso a aplicação funciona pelo console.
+
+## Tecnologias utilizadas
 
 - C# / .NET 10
 - SQL Server Express
 - Microsoft.Data.SqlClient
 - DataGrip
 - VS Code
+- GitHub
 
-## Funcionalidades atuais
+## Funcionalidades
 
-- Cadastro de fornecedores e produtos
-- Registro de entradas e saidas
-- Calculo de estoque
-- View de estoque atual
-- Validacao para impedir saida acima do estoque
-- Aplicacao C# conectando ao SQL Server e exibindo o estoque
+O sistema atualmente possui:
 
-## Ordem dos scripts
+- Listagem de produtos
+- Cadastro de produtos
+- Listagem de fornecedores
+- Cadastro de fornecedores
+- Registro de entrada de mercadorias
+- Registro de saída de mercadorias
+- Consulta de estoque
+- Validação para impedir saída maior que o estoque disponível
 
-1. `database/00_CriarBanco.sql`
-2. `database/01_CriarTabelas.sql`
-3. `database/02_DadosTeste.sql`
-4. `database/03_ViewEstoque.sql`
-5. `database/04_ProcedureRegistrarSaida.sql`
-6. `database/05_Consultas.sql`
+## Menu do sistema
 
-`06_TesteValidacao.sql` e opcional e deve gerar erro de estoque insuficiente.
+```text
+=== CENTRO DE DISTRIBUIÇÃO ===
 
-## Executar o C#
-
-```powershell
-cd src/CentroDistribuicao.App
-dotnet restore
-dotnet run
-```
-
-A conexao padrao usa `localhost\SQLEXPRESS`, banco `CentroDistribuicao` e autenticacao do Windows.
-
-## Dados de demonstracao
-
-Os dados dos scripts sao ficticios. Nomes comerciais podem ser reais apenas para deixar os exemplos naturais; CNPJ, telefone, documentos e movimentacoes nao representam dados reais das empresas.
+1 - Listar produtos
+2 - Cadastrar produto
+3 - Listar fornecedores
+4 - Cadastrar fornecedor
+5 - Registrar entrada
+6 - Registrar saída
+7 - Consultar estoque
+0 - Sair

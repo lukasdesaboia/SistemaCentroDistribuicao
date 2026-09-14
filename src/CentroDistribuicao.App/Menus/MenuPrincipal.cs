@@ -55,8 +55,8 @@ case "1":
                 break;
 
                 case "7":
-                    Console.WriteLine("Consulta de estoque.");
-                    break;
+                  await ConsultarEstoqueAsync();
+                   break;
 
                 case "0":
                     continuar = false;
@@ -647,5 +647,56 @@ private static async Task RegistrarSaidaAsync()
         );
 
         Console.WriteLine($"Erro: {erro.Message}");
+    }
+private static async Task ConsultarEstoqueAsync()
+{
+    try
+    {
+        Console.WriteLine("=== ESTOQUE ATUAL ===");
+        Console.WriteLine();
+
+        var repositorio = new EstoqueRepository();
+
+        var estoque = await repositorio.ListarAsync();
+
+        if (estoque.Count == 0)
+        {
+            Console.WriteLine(
+                "Nenhum produto encontrado no estoque."
+            );
+
+            return;
+        }
+
+        foreach (var produto in estoque)
+        {
+            Console.WriteLine(
+                $"Código: {produto.Codigo} | " +
+                $"Produto: {produto.Descricao}"
+            );
+
+            Console.WriteLine(
+                $"Entradas: {produto.TotalEntrada:N3} | " +
+                $"Saídas: {produto.TotalSaida:N3} | " +
+                $"Estoque: {produto.EstoqueAtual:N3} " +
+                $"{produto.Unidade}"
+            );
+
+            Console.WriteLine(
+                new string('-', 70)
+            );
+        }
+    }
+    catch (Exception erro)
+    {
+        Console.WriteLine();
+
+        Console.WriteLine(
+            "Não foi possível consultar o estoque."
+        );
+
+        Console.WriteLine(
+            $"Erro: {erro.Message}"
+        );
     }
 }

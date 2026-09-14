@@ -46,9 +46,9 @@ case "1":
                  await CadastrarFornecedorAsync();
                  break;
 
-                case "5":
-                    Console.WriteLine("Registro de entrada.");
-                    break;
+               case "5":
+                await RegistrarEntradaAsync();
+                break;
 
                 case "6":
                     Console.WriteLine("Registro de saída.");
@@ -243,5 +243,261 @@ private static async Task CadastrarFornecedorAsync()
         Console.WriteLine();
         Console.WriteLine("Não foi possível cadastrar o fornecedor.");
         Console.WriteLine($"Erro: {erro.Message}");
+    }
+private static async Task RegistrarEntradaAsync()
+{
+    try
+    {
+        Console.WriteLine("=== REGISTRAR ENTRADA ===");
+        Console.WriteLine();
+
+        var fornecedorRepository =
+            new FornecedorRepository();
+
+        var fornecedores =
+            await fornecedorRepository.ListarAsync();
+
+        var fornecedoresAtivos =
+            fornecedores
+                .Where(f => f.Ativo)
+                .ToList();
+
+        if (fornecedoresAtivos.Count == 0)
+        {
+            Console.WriteLine(
+                "Nenhum fornecedor ativo cadastrado."
+            );
+
+            return;
+        }
+
+        Console.WriteLine("Fornecedores:");
+        Console.WriteLine();
+
+        foreach (var fornecedor in fornecedoresAtivos)
+        {
+            Console.WriteLine(
+                $"{fornecedor.IdFornecedor} - " +
+                $"{fornecedor.NomeFantasia ?? fornecedor.RazaoSocial}"
+            );
+        }
+
+        Console.WriteLine();
+        Console.Write("ID do fornecedor: ");
+
+        if (!int.TryParse(
+                Console.ReadLine(),
+                out int idFornecedor))
+        {
+            Console.WriteLine("Fornecedor inválido.");
+            return;
+        }
+
+        bool fornecedorExiste =
+            fornecedoresAtivos.Any(
+                f => f.IdFornecedor == idFornecedor
+            );
+
+        if (!fornecedorExiste)
+        {
+            Console.WriteLine(
+                "Fornecedor não encontrado."
+            );
+
+            return;
+        }
+
+        Console.Write("Número do documento: ");
+        string numeroDocumento =
+            Console.ReadLine()?.Trim() ?? "";
+
+        Console.Write("Observação: ");
+        string observacao =
+            Console.ReadLine()?.Trim() ?? "";
+
+        var produtoRepository =
+            new ProdutoRepository();
+
+        var produtos =
+            await produtoRepository.ListarAsync();
+
+        var produtosAtivos =
+            produtos
+                .Where(p => p.Ativo)
+                .ToList();
+
+        if (produtosAtivos.Count == 0)
+        {
+            Console.WriteLine(
+                "Nenhum produto ativo cadastrado."
+            );
+
+            return;
+        }
+
+        var itens =
+            new List<
+                CentroDistribuicao.App.Models
+                    .EntradaItemCadastro
+            >();
+
+        while (true)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Produtos disponíveis:");
+            Console.WriteLine();
+
+            foreach (var produto in produtosAtivos)
+            {
+                Console.WriteLine(
+                    $"{produto.IdProduto} - " +
+                    $"{produto.Codigo} - " +
+                    $"{produto.Descricao}"
+                );
+            }
+
+            Console.WriteLine();
+            Console.Write(
+                "ID do produto (0 para finalizar): "
+            );
+
+            if (!int.TryParse(
+                    Console.ReadLine(),
+                    out int idProduto))
+            {
+                Console.WriteLine(
+                    "ID inválido."
+                );
+
+                continue;
+            }
+
+            if (idProduto == 0)
+            {
+                break;
+            }
+
+            var produtoSelecionado =
+                produtosAtivos.FirstOrDefault(
+                    p => p.IdProduto == idProduto
+                );
+
+            if (produtoSelecionado == null)
+            {
+                Console.WriteLine(
+                    "Produto não encontrado."
+                );
+
+                continue;
+            }
+
+            if (itens.Any(
+                    i => i.IdProduto == idProduto))
+            {
+                Console.WriteLine(
+                    "Esse produto já foi adicionado."
+                );
+
+                continue;
+            }
+
+            Console.Write("Quantidade: ");
+
+            if (!decimal.TryParse(
+                    Console.ReadLine(),
+                    out decimal quantidade) ||
+                quantidade <= 0)
+            {
+                Console.WriteLine(
+                    "Quantidade inválida."
+                );
+
+                continue;
+            }
+
+            Console.Write(
+                "Valor unitário " +
+                "(ENTER se não quiser informar): "
+            );
+
+            string textoValor =
+                Console.ReadLine()?.Trim() ?? "";
+
+            decimal? valorUnitario = null;
+
+            if (!string.IsNullOrWhiteSpace(textoValor))
+            {
+                if (!decimal.TryParse(
+                        textoValor,
+                        out decimal valor) ||
+                    valor < 0)
+                {
+                    Console.WriteLine(
+                        "Valor inválido."
+                    );
+
+                    continue;
+                }
+
+                valorUnitario = valor;
+            }
+
+            itens.Add(
+                new CentroDistribuicao.App.Models
+                    .EntradaItemCadastro
+                {
+                    IdProduto = idProduto,
+                    Quantidade = quantidade,
+                    ValorUnitario = valorUnitario
+                }
+            );
+
+            Console.WriteLine();
+            Console.WriteLine(
+                $"{produtoSelecionado.Descricao} " +
+                "adicionado à entrada."
+            );
+        }
+
+        if (itens.Count == 0)
+        {
+            Console.WriteLine();
+            Console.WriteLine(
+                "Entrada cancelada: nenhum produto informado."
+            );
+
+            return;
+        }
+
+        var entradaRepository =
+            new EntradaRepository();
+
+        int idEntrada =
+            await entradaRepository.RegistrarAsync(
+                idFornecedor,
+                numeroDocumento,
+                observacao,
+                itens
+            );
+
+        Console.WriteLine();
+        Console.WriteLine(
+            "Entrada registrada com sucesso."
+        );
+
+        Console.WriteLine(
+            $"Código da entrada: {idEntrada}"
+        );
+    }
+    catch (Exception erro)
+    {
+        Console.WriteLine();
+        Console.WriteLine(
+            "Não foi possível registrar a entrada."
+        );
+
+        Console.WriteLine(
+            $"Erro: {erro.Message}"
+        );
     }
 }
